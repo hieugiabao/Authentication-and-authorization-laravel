@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,4 +25,25 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh'])->withoutMiddleware('auth.jwt');
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
+});
+
+Route::group([
+    'middleware' => ['auth.jwt', 'role:superadmin|admin'],
+    'prefix' => 'roles',
+], function ($router) {
+    Route::get('/', [RoleController::class, 'getAllRoles']);
+    Route::post('/', [RoleController::class, 'create'])->middleware('permission:manage-role');
+    Route::get('/{id}', [RoleController::class, 'getRole']);
+    Route::put('/{id}', [RoleController::class, 'update'])->middleware('permission:manage-role');
+});
+
+// register permission
+Route::group([
+    'middleware' => ['auth.jwt', 'role:superadmin|admin'],
+    'prefix' => 'permissions',
+], function ($router) {
+    Route::get('/', [PermissionController::class, 'getAllPermissions']);
+    Route::post('/', [PermissionController::class, 'create'])->middleware('permission:manage-permission');
+    Route::get('/{id}', [PermissionController::class, 'getPermission']);
+    Route::put('/{id}', [PermissionController::class, 'update'])->middleware('permission:manage-permission');
 });

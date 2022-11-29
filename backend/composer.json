@@ -10,9 +10,11 @@
     "require": {
         "php": "^8.0.2|7.4.3",
         "guzzlehttp/guzzle": "^7.2",
+        "jsdecena/baserepo": "^2.0",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
+        "santigarcor/laratrust": "^7.1",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {

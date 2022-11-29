@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Throwable;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -57,6 +59,27 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (JWTException $e, $request) {
             return Response::json(['error' => 'Token not parsed'], 401);
+        });
+
+        $this->renderable(function (UnauthorizedHttpException $e, $request) {
+            return Response::json(['error' => 'Not authorized'], 403);
+        });
+
+        $this->renderable(function (HttpException $e, $request) {
+            if ($e->getStatusCode() == 404) {
+                return Response::json(['error' => 'Not found'], 404);
+            }
+
+            // error 403
+            if ($e->getStatusCode() == 403) {
+                return Response::json(['error' => 'Not authorized'], 403);
+            }
+
+            if ($e->getStatusCode() == 500) {
+                return Response::json(['error' => 'Internal server error'], 500);
+            }
+
+            return $this->prepareJsonResponse($request, $e);
         });
     }
 }
